@@ -196,10 +196,11 @@ const ERAS = [
   {k:"modern",   cls:"era-m", n:"20세기·현대", rg:"32–44번 · 13곡"}
 ];
 // c: 작곡가(영문), ck: 한글 표기, kt: 한글 제목, t: 원제, k: 제목으로 인정할 핵심어, v: 영상 id, s: 링크의 시작 시각(초)
+// alt: v가 외부 사이트 임베드를 막아 둔 경우(오류 101/150) 차례로 시도할 다른 연주 영상
 const SONGS = [
 {n:1, e:"baroque",c:"Pachelbel",ck:"파헬벨",kt:"캐논 D장조",t:"Canon in D major",k:["캐논","canon","카논"],v:"9nX_ReyaetE"},
 {n:2, e:"baroque",c:"Vivaldi",ck:"비발디",kt:"사계 중 '겨울'",t:'The Four Seasons "Winter"',k:["겨울","winter","사계"],v:"ZPdk5GaIDjo"},
-{n:3, e:"baroque",c:"Bach",ck:"바흐",kt:"무반주 바이올린 파르티타 2번 중 샤콘느",t:"Chaconne from Partita No. 2",k:["샤콘","chaconne","파르티타","partita"],v:"1F7c8zIhBGg"},
+{n:3, e:"baroque",c:"Bach",ck:"바흐",kt:"무반주 바이올린 파르티타 2번 중 샤콘느",t:"Chaconne from Partita No. 2",k:["샤콘","chaconne","파르티타","partita"],v:"1F7c8zIhBGg",alt:["ngjEVKxQCWs"]},
 {n:4, e:"baroque",c:"Bach",ck:"바흐",kt:"무반주 첼로 모음곡 1번 전주곡",t:"Cello Suite No. 1, Prelude",k:["첼로모음곡","첼로조곡","cellosuite","첼로"],v:"1prweT95Mo0"},
 {n:5, e:"baroque",c:"Bach",ck:"바흐",kt:"토카타와 푸가 d단조",t:"Toccata and Fugue in D minor",k:["토카타","toccata"],v:"erXG9vnN-GI"},
 {n:6, e:"baroque",c:"Handel",ck:"헨델",kt:"리날도 중 '울게 하소서'",t:"Lascia ch'io pianga (Rinaldo)",k:["울게","lascia","리날도","rinaldo"],v:"EKo_EmfEPWs"},
@@ -208,16 +209,16 @@ const SONGS = [
 {n:9, e:"classical",c:"Haydn",ck:"하이든",kt:"첼로 협주곡 1번 1악장",t:"Cello Concerto No. 1",k:["첼로협주곡","celloconcerto","협주곡"],v:"bniAamEGHXs"},
 {n:10,e:"classical",c:"Mozart",ck:"모차르트",kt:"교향곡 40번 1악장",t:"Symphony No. 40 in G minor",k:["40번","교향곡40","symphonyno40","symphony40"],v:"UEj6OJ4-4Bw"},
 {n:11,e:"classical",c:"Mozart",ck:"모차르트",kt:"레퀴엠 중 '라크리모사'",t:"Requiem – Lacrimosa",k:["라크리모사","lacrimosa","레퀴엠","requiem"],v:"KcnBPqOddSM"},
-{n:12,e:"classical",c:"Mozart",ck:"모차르트",kt:"터키 행진곡",t:"Rondo alla Turca (Piano Sonata No. 11)",k:["터키","turca","알라투르카","피아노소나타11"],v:"n2Tru4Qa3pc"},
+{n:12,e:"classical",c:"Mozart",ck:"모차르트",kt:"터키 행진곡",t:"Rondo alla Turca (Piano Sonata No. 11)",k:["터키","turca","알라투르카","피아노소나타11"],v:"n2Tru4Qa3pc",alt:["quxTnEEETbo"]},
 {n:13,e:"classical",c:"Beethoven",ck:"베토벤",kt:"교향곡 5번 '운명' 1악장",t:"Symphony No. 5 in C minor",k:["운명","교향곡5","5번","symphonyno5","symphony5"],v:"SSypujlLlNI"},
 {n:14,e:"classical",c:"Beethoven",ck:"베토벤",kt:"교향곡 9번 '합창' 4악장",t:"Symphony No. 9, 4th mov.",k:["합창","환희","교향곡9","9번","symphonyno9","symphony9","choral"],v:"eAwBg6-xaFE",s:247},
 {n:15,e:"romantic",c:"Schubert",ck:"슈베르트",kt:"마왕",t:"Erlkönig",k:["마왕","erlkonig","erlkoenig"],v:"JS91p-vmSf0"},
 {n:16,e:"romantic",c:"Schubert",ck:"슈베르트",kt:"피아노 3중주 2번 2악장",t:"Piano Trio No. 2",k:["3중주","삼중주","트리오","trio"],v:"nioKJNp8ADE"},
-{n:17,e:"romantic",c:"Saint-Saëns",ck:"생상스",kt:"죽음의 무도",t:"Danse Macabre",k:["죽음의무도","dansemacabre","macabre"],v:"YyknBTm_YyM"},
+{n:17,e:"romantic",c:"Saint-Saëns",ck:"생상스",kt:"죽음의 무도",t:"Danse Macabre",k:["죽음의무도","dansemacabre","macabre"],v:"YyknBTm_YyM",alt:["71fZhMXlGT4"]},
 {n:18,e:"romantic",c:"Mendelssohn",ck:"멘델스존",kt:"한여름 밤의 꿈 중 결혼 행진곡",t:"Wedding March (A Midsummer Night's Dream)",k:["한여름","결혼행진곡","weddingmarch","midsummer"],v:"0Oo4z37OUEI"},
 {n:19,e:"romantic",c:"Chopin",ck:"쇼팽",kt:"발라드 1번",t:"Ballade No. 1 in G minor",k:["발라드","ballade"],v:"Zj_psrTUW_w"},
 {n:20,e:"romantic",c:"Chopin",ck:"쇼팽",kt:"전주곡 '빗방울'",t:"Prelude Op. 28 No. 15 \"Raindrop\"",k:["빗방울","raindrop","전주곡","prelude"],v:"HVau-JRGirg"},
-{n:21,e:"romantic",c:"Paganini",ck:"파가니니",kt:"카프리스 24번",t:"Caprice No. 24",k:["카프리스","caprice","24번"],v:"PZ307sM0t-0"},
+{n:21,e:"romantic",c:"Paganini",ck:"파가니니",kt:"카프리스 24번",t:"Caprice No. 24",k:["카프리스","caprice","24번"],v:"PZ307sM0t-0",alt:["Vg0dG6pIs2Y","ITzcZia7fsQ"]},
 {n:22,e:"romantic",c:"Schumann",ck:"슈만",kt:"어린이 정경 중 '트로이메라이'",t:"Träumerei (Kinderszenen)",k:["트로이메라이","traumerei","traeumerei","어린이정경","꿈"],v:"6z82w0l6kwE"},
 {n:23,e:"romantic",c:"Liszt",ck:"리스트",kt:"라 캄파넬라",t:"La Campanella",k:["캄파넬라","campanella"],v:"H1Dvg2MxQn8"},
 {n:24,e:"romantic",c:"Liszt",ck:"리스트",kt:"초절기교 연습곡 4번 '마제파'",t:"Transcendental Etude No. 4 \"Mazeppa\"",k:["마제파","mazeppa","초절기교"],v:"Uk6qyGFYJ9M"},
@@ -225,9 +226,9 @@ const SONGS = [
 {n:26,e:"romantic",c:"Wagner",ck:"바그너",kt:"발퀴레의 기행",t:"Ride of the Valkyries",k:["발퀴레","발키리","valkyrie","walkure","walkuere"],v:"GGU1P6lBW6Q"},
 {n:27,e:"romantic",c:"Wagner",ck:"바그너",kt:"로엔그린 중 결혼 행진곡",t:"Wedding March (Lohengrin)",k:["로엔그린","lohengrin","결혼행진곡","weddingmarch","treulich"],v:"_7Su2qPT_P0"},
 {n:28,e:"romantic",c:"Khachaturian",ck:"하차투리안",kt:"가면무도회 중 왈츠",t:"Masquerade: Waltz",k:["가면무도회","masquerade"],v:"fPp3Qh-GRqs"},
-{n:29,e:"romantic",c:"Bizet",ck:"비제",kt:"카르멘 중 '하바네라'",t:"Habanera (Carmen)",k:["하바네라","habanera","카르멘","carmen"],v:"EseMHr6VEM0"},
+{n:29,e:"romantic",c:"Bizet",ck:"비제",kt:"카르멘 중 '하바네라'",t:"Habanera (Carmen)",k:["하바네라","habanera","카르멘","carmen"],v:"EseMHr6VEM0",alt:["f1mRlTJiJH4","OiHsWXRB5OA"]},
 {n:30,e:"romantic",c:"Tchaikovsky",ck:"차이콥스키",kt:"백조의 호수 중 '정경'",t:"Swan Lake: Scene",k:["백조","swanlake","swan"],v:"9cNQFB0TDfY"},
-{n:31,e:"romantic",c:"Puccini",ck:"푸치니",kt:"투란도트 중 '공주는 잠 못 이루고'",t:"Nessun Dorma (Turandot)",k:["네순도르마","nessundorma","잠못","잠들지","투란도트","turandot"],v:"cWc7vYjgnTs"},
+{n:31,e:"romantic",c:"Puccini",ck:"푸치니",kt:"투란도트 중 '공주는 잠 못 이루고'",t:"Nessun Dorma (Turandot)",k:["네순도르마","nessundorma","잠못","잠들지","투란도트","turandot"],v:"cWc7vYjgnTs",alt:["xN-JCdM4or0","suj-2sbSFKs"]},
 {n:32,e:"modern",c:"Debussy",ck:"드뷔시",kt:"교향시 '바다' 2악장",t:"La mer, 2nd mov.",k:["바다","lamer","파도의유희"],v:"HIgQHcLoADA"},
 {n:33,e:"modern",c:"Glinka",ck:"글린카",kt:"루슬란과 류드밀라 서곡",t:"Ruslan and Ludmila Overture",k:["루슬란","ruslan","류드밀라","ludmila"],v:"QW3IwWFkpfc"},
 {n:34,e:"modern",c:"Mahler",ck:"말러",kt:"교향곡 5번 4악장 '아다지에토'",t:"Symphony No. 5: Adagietto",k:["아다지에토","adagietto","교향곡5","5번"],v:"Bj6KLv7kv2Q"},
@@ -252,6 +253,8 @@ const norm = s => String(s||"").normalize("NFKD").replace(/[̀-ͯ]/g,"").normali
 
 let picked = new Set(ERAS.map(e => e.k));
 let queue = [], idx = 0, results = [], cur = null;
+let vidIdx = 0;
+const curVid = () => [cur.v, ...(cur.alt || [])][vidIdx];
 let player = null, ytReady = false, startAt = 0, played = 0, lastTick = 0, isPlaying = false, clipDone = false, fixedStart = false, graded = false;
 
 function store(key, val){ try{ if(val === undefined) return JSON.parse(localStorage.getItem(key)); localStorage.setItem(key, JSON.stringify(val)); }catch(e){ return null; } }
@@ -324,7 +327,7 @@ function loadSong(){
   $("pScore").innerHTML = results.length ? `완벽 <b>${sc}</b> / ${results.length}` : "";
   $("pTrack").style.width = (idx / queue.length * 100) + "%";
   startAt = (cur.s || 0) + Math.random() * WINDOW;
-  played = 0; clipDone = false; fixedStart = false; graded = false;
+  played = 0; clipDone = false; fixedStart = false; graded = false; vidIdx = 0;
   $("pErr").hidden = true;
   $("inComp").value = ""; $("inTitle").value = "";
   $("inComp").className = ""; $("inTitle").className = "";
@@ -385,7 +388,12 @@ function setClock(){
 const fmt = s => `${Math.floor(s / 60)}분 ${String(Math.floor(s % 60)).padStart(2, "0")}초`;
 
 function showErr(code){
-  const url = `https://www.youtube.com/watch?v=${cur.v}&t=${Math.floor(startAt)}`;
+  if(vidIdx + 1 < [cur.v, ...(cur.alt || [])].length){
+    vidIdx++; fixedStart = false; startAt = Math.random() * WINDOW;
+    player.loadVideoById({videoId: curVid(), startSeconds: startAt});
+    return;
+  }
+  const url = `https://www.youtube.com/watch?v=${curVid()}&t=${Math.floor(startAt)}`;
   $("pErr").hidden = false;
   $("pErr").innerHTML = `이 영상은 여기서 재생할 수 없습니다 (오류 ${code}). <a href="${url}" target="_blank" rel="noopener">유튜브에서 ${fmt(startAt)}부터 듣기</a> — 정답은 아래에서 맞히면 됩니다.`;
   $("pMeta").textContent = "재생 실패";
@@ -431,7 +439,7 @@ function grade(gaveUp){
     `<div class="verdict"><span class="${c ? "y" : "n"}">작곡가 ${c ? "맞음" : "틀림"}</span><span class="${t ? "y" : "n"}">제목 ${t ? "맞음" : "틀림"}</span></div>
      <div class="ans"><span class="num">${cur.n}번</span>${cur.ck} — ${cur.kt}</div>
      <div class="sub">${cur.c} · ${cur.t} · ${era.n}</div>
-     <div class="sub"><a href="https://www.youtube.com/watch?v=${cur.v}&t=${Math.floor(startAt)}" target="_blank" rel="noopener">방금 구간 유튜브에서 열기 (${fmt(startAt)})</a></div>`;
+     <div class="sub"><a href="https://www.youtube.com/watch?v=${curVid()}&t=${Math.floor(startAt)}" target="_blank" rel="noopener">방금 구간 유튜브에서 열기 (${fmt(startAt)})</a></div>`;
   $("nextBtns").hidden = false;
   $("nextBtn").textContent = idx + 1 < queue.length ? "다음 곡" : "결과 보기";
   $("nextBtn").focus();
