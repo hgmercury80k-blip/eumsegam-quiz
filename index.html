@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>음세감 청음 퀴즈</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* 청음 노트와 같은 팔레트·서체. 한 화면에 한 단계(설정 → 듣기·답하기 → 결과). */
+:root{
+  --paper:#F1F1F4; --surface:#FCFCFE; --surface-2:#E9E9EE;
+  --ink:#16161C; --ink-2:#54545F; --ink-3:#85858F;
+  --line:#DBDBE2; --line-2:#C7C7D1;
+  --brass:#8A6013; --brass-ink:#5E4108; --brass-bg:#EFE6D2;
+  --ok:#2A6B46; --ok-bg:#DFEDE4; --ng:#9A3030; --ng-bg:#F2DFDF;
+  --e-baroque:#1F6B5E; --e-classical:#2F5AA0; --e-romantic:#9E3355; --e-modern:#63469A;
+  --serif:"Gowun Batang","Apple SD Gothic Neo",serif;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --shadow:0 1px 2px rgba(20,20,30,.06),0 6px 18px -10px rgba(20,20,30,.22);
+}
+@media (prefers-color-scheme:dark){:root{
+  --paper:#111116; --surface:#1A1A20; --surface-2:#24242C;
+  --ink:#EDEDF2; --ink-2:#A3A3AF; --ink-3:#76767F;
+  --line:#2B2B34; --line-2:#3A3A45;
+  --brass:#D9A441; --brass-ink:#EFC978; --brass-bg:#332811;
+  --ok:#6FCB96; --ok-bg:#16301F; --ng:#E88585; --ng-bg:#361A1A;
+  --e-baroque:#4CBCA5; --e-classical:#82A9E8; --e-romantic:#E8829D; --e-modern:#AC91E4;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 22px -12px rgba(0,0,0,.7);
+  color-scheme:dark;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6}
+h1,h2{font-family:var(--serif);font-weight:700;margin:0;text-wrap:balance}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px;border-radius:4px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.wrap{max-width:620px;margin:0 auto;padding-block:28px 64px;padding-inline:max(16px,env(safe-area-inset-left,0px)) max(16px,env(safe-area-inset-right,0px))}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+h1{font-size:28px;line-height:1.25;margin-top:4px}
+.lede{color:var(--ink-2);font-size:14px;margin:8px 0 22px}
+
+.era-b{--era:var(--e-baroque)} .era-c{--era:var(--e-classical)} .era-r{--era:var(--e-romantic)} .era-m{--era:var(--e-modern)}
+
+/* setup */
+.eras{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.eraBtn{text-align:left;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--era);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px}
+.eraBtn .nm{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--era)}
+.eraBtn .rg{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+.eraBtn[aria-pressed="false"]{opacity:.45;border-left-color:var(--line-2)}
+.eraBtn[aria-pressed="false"] .nm{color:var(--ink-3)}
+.opts{display:flex;flex-direction:column;gap:8px;margin:18px 0 20px;font-size:13.5px;color:var(--ink-2)}
+.opts label{display:flex;gap:9px;align-items:flex-start;cursor:pointer}
+.opts input{margin-top:4px;accent-color:var(--brass)}
+.opts b{color:var(--ink);font-weight:600}
+.primary{width:100%;padding:14px;border-radius:9px;border:0;background:var(--ink);color:var(--paper);font-weight:600;font-size:15px}
+.primary:disabled{opacity:.4;cursor:default}
+.notice{margin-top:16px;font-size:12.5px;color:var(--brass-ink);background:var(--brass-bg);border-radius:7px;padding:9px 12px}
+
+/* play */
+.top{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.top .era{font-family:var(--serif);font-weight:700;font-size:17px;color:var(--era)}
+.top .pos{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.top .score{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.top .score b{color:var(--ink)}
+.track{height:4px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:16px}
+.track i{display:block;height:100%;background:var(--era);transition:width .3s}
+
+.stage{position:relative;border-radius:11px;overflow:hidden;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow)}
+/* 영상 화면에 제목이 뜨므로 플레이어는 뒤에 숨기고 덮개를 씌운다 */
+.playerBox{position:absolute;inset:0;opacity:.001;pointer-events:none}
+.playerBox iframe,.playerBox>div{width:100%;height:100%}
+.cover{position:relative;padding:22px 20px 18px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:190px}
+.clock{font-family:var(--mono);font-size:42px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.clock small{font-size:14px;color:var(--ink-3);margin-left:4px}
+.bars{display:flex;gap:3px;align-items:flex-end;height:28px}
+.bars span{width:4px;border-radius:2px;background:var(--era);height:20%;transition:height .25s}
+.playing .bars span{animation:b 1s ease-in-out infinite alternate}
+.bars span:nth-child(2n){animation-delay:-.3s}.bars span:nth-child(3n){animation-delay:-.6s}.bars span:nth-child(5n){animation-delay:-.15s}
+@keyframes b{from{height:15%}to{height:100%}}
+.meta{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);text-align:center}
+.ctrl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ghost{background:var(--surface);border:1px solid var(--line-2);border-radius:99px;padding:6px 14px;font-size:13px;color:var(--ink-2)}
+.err{font-size:12.5px;color:var(--ng);text-align:center}
+.err a{color:var(--ng)}
+
+.answer{margin-top:16px;display:flex;flex-direction:column;gap:10px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.field input{padding:11px 13px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);font-size:15px;min-width:0}
+.field input.ok{border-color:var(--ok);background:var(--ok-bg)}
+.field input.ng{border-color:var(--ng);background:var(--ng-bg)}
+.row2{display:flex;gap:8px}
+.row2 button{flex:1;padding:12px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid var(--line-2);background:var(--surface)}
+.row2 .go{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+.reveal{margin-top:14px;padding:15px 16px;border-radius:10px;background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--era)}
+.verdict{font-family:var(--mono);font-size:12px;display:flex;gap:14px;margin-bottom:8px}
+.verdict .y{color:var(--ok)} .verdict .n{color:var(--ng)}
+.reveal .ans{font-family:var(--serif);font-size:19px;font-weight:700;line-height:1.4}
+.reveal .sub{font-size:13px;color:var(--ink-2);margin-top:3px}
+.reveal .num{font-family:var(--mono);font-size:12px;color:var(--era);margin-right:6px}
+.reveal a{font-family:var(--mono);font-size:12px;color:var(--brass-ink)}
+
+/* result */
+.sumGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:18px 0}
+.sumCell{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--era);border-radius:8px;padding:10px 12px}
+.sumCell .nm{font-size:12.5px;color:var(--ink-2)}
+.sumCell .v{font-family:var(--mono);font-size:20px;font-weight:600}
+.sumCell .v small{font-size:12px;color:var(--ink-3);font-weight:400}
+.missList{list-style:none;margin:0 0 20px;padding:0;border-top:1px solid var(--line)}
+.missList li{padding:9px 0 9px 12px;border-bottom:1px solid var(--line);border-left:3px solid var(--era);font-size:13.5px}
+.missList .what{font-family:var(--mono);font-size:11px;color:var(--ng);margin-left:6px}
+.btnCol{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 1. 설정 -->
+<section id="setup">
+  <div class="eyebrow">음악세계와 감상 · 감상 리스트 44곡</div>
+  <h1>청음 퀴즈</h1>
+  <p class="lede">고른 시대의 곡을 무작위 순서로 틀어 줍니다. 각 곡은 처음~2분 사이 아무 지점에서 시작해 1분 동안 나오고, 듣고 나서 작곡가와 곡 제목을 적으면 채점합니다.</p>
+  <div class="eras" id="eraPick"></div>
+  <div class="opts">
+    <label><input type="checkbox" id="optOrder" checked> <span><b>시대순으로 진행</b> — 바로크 곡을 모두 듣고 고전으로 넘어갑니다. 시대 안에서는 순서가 무작위입니다. 끄면 시대 구분 없이 모두 섞습니다.</span></label>
+    <label><input type="checkbox" id="optHint" checked> <span><b>입력 자동완성</b> — 타이핑하면 44곡 목록에서 후보를 띄웁니다. 끄면 기억만으로 적어야 합니다.</span></label>
+  </div>
+  <button class="primary" id="startBtn" type="button">시작</button>
+  <div class="notice" id="badNote" hidden></div>
+</section>
+
+<!-- 2. 듣기 + 답하기 -->
+<section id="play" hidden>
+  <div class="top"><span class="era" id="pEra"></span><span class="pos" id="pPos"></span><span class="score" id="pScore"></span></div>
+  <div class="track"><i id="pTrack"></i></div>
+  <div class="stage">
+    <div class="playerBox"><div id="player"></div></div>
+    <div class="cover" id="cover">
+      <div class="bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="clock" id="clock">0:60<small>남음</small></div>
+      <div class="meta" id="pMeta">불러오는 중…</div>
+      <div class="ctrl">
+        <button class="ghost" id="pauseBtn" type="button">일시정지</button>
+        <button class="ghost" id="replayBtn" type="button">같은 구간 다시</button>
+        <button class="ghost" id="stopBtn" type="button">그만 듣고 답하기</button>
+      </div>
+      <div class="err" id="pErr" hidden></div>
+    </div>
+  </div>
+
+  <form class="answer" id="ansForm" autocomplete="off">
+    <div class="field"><label for="inComp">작곡가</label><input id="inComp" list="dlComp" placeholder="e.g. Bach"></div>
+    <div class="field"><label for="inTitle">곡 제목</label><input id="inTitle" list="dlTitle" placeholder="e.g. Toccata and Fugue in D minor"></div>
+    <div class="row2" id="ansBtns">
+      <button type="button" id="giveUp">모르겠음</button>
+      <button type="submit" class="go">채점</button>
+    </div>
+  </form>
+  <datalist id="dlComp"></datalist>
+  <datalist id="dlTitle"></datalist>
+
+  <div class="reveal" id="reveal" hidden></div>
+  <div class="row2" id="nextBtns" hidden style="margin-top:12px">
+    <button type="button" id="quitBtn">여기서 끝내기</button>
+    <button type="button" class="go" id="nextBtn">다음 곡</button>
+  </div>
+</section>
+
+<!-- 3. 결과 -->
+<section id="result" hidden>
+  <div class="eyebrow">결과</div>
+  <h1 id="rHead"></h1>
+  <div class="sumGrid" id="rGrid"></div>
+  <div id="rMissWrap"></div>
+  <div class="btnCol">
+    <button class="primary" id="retryMiss" type="button">틀린 곡만 다시</button>
+    <button class="ghost" id="backSetup" type="button">처음으로</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+const CLIP = 60, WINDOW = 120;
+const ERAS = [
+  {k:"baroque",  cls:"era-b", n:"바로크",     rg:"1–7번 · 7곡"},
+  {k:"classical",cls:"era-c", n:"고전",       rg:"8–14번 · 7곡"},
+  {k:"romantic", cls:"era-r", n:"낭만",       rg:"15–31번 · 17곡"},
+  {k:"modern",   cls:"era-m", n:"20세기·현대", rg:"32–44번 · 13곡"}
+];
+// c: 작곡가(영문), ck: 한글 표기, kt: 한글 제목, t: 원제, k: 제목으로 인정할 핵심어, v: 영상 id, s: 링크의 시작 시각(초)
+const SONGS = [
+{n:1, e:"baroque",c:"Pachelbel",ck:"파헬벨",kt:"캐논 D장조",t:"Canon in D major",k:["캐논","canon","카논"],v:"9nX_ReyaetE"},
+{n:2, e:"baroque",c:"Vivaldi",ck:"비발디",kt:"사계 중 '겨울'",t:'The Four Seasons "Winter"',k:["겨울","winter","사계"],v:"ZPdk5GaIDjo"},
+{n:3, e:"baroque",c:"Bach",ck:"바흐",kt:"무반주 바이올린 파르티타 2번 중 샤콘느",t:"Chaconne from Partita No. 2",k:["샤콘","chaconne","파르티타","partita"],v:"1F7c8zIhBGg"},
+{n:4, e:"baroque",c:"Bach",ck:"바흐",kt:"무반주 첼로 모음곡 1번 전주곡",t:"Cello Suite No. 1, Prelude",k:["첼로모음곡","첼로조곡","cellosuite","첼로"],v:"1prweT95Mo0"},
+{n:5, e:"baroque",c:"Bach",ck:"바흐",kt:"토카타와 푸가 d단조",t:"Toccata and Fugue in D minor",k:["토카타","toccata"],v:"erXG9vnN-GI"},
+{n:6, e:"baroque",c:"Handel",ck:"헨델",kt:"리날도 중 '울게 하소서'",t:"Lascia ch'io pianga (Rinaldo)",k:["울게","lascia","리날도","rinaldo"],v:"EKo_EmfEPWs"},
+{n:7, e:"baroque",c:"Couperin",ck:"쿠프랭",kt:"신비스러운 장벽",t:"Les barricades mystérieuses",k:["장벽","barricades","바리케이드"],v:"NY2TNJiOG00"},
+{n:8, e:"classical",c:"Haydn",ck:"하이든",kt:"현악 4중주 '황제' 2악장",t:'String Quartet Op. 76 No. 3 "Emperor"',k:["황제","emperor","현악4중주","4중주","사중주"],v:"n2fDIXB0KmU"},
+{n:9, e:"classical",c:"Haydn",ck:"하이든",kt:"첼로 협주곡 1번 1악장",t:"Cello Concerto No. 1",k:["첼로협주곡","celloconcerto","협주곡"],v:"bniAamEGHXs"},
+{n:10,e:"classical",c:"Mozart",ck:"모차르트",kt:"교향곡 40번 1악장",t:"Symphony No. 40 in G minor",k:["40번","교향곡40","symphonyno40","symphony40"],v:"UEj6OJ4-4Bw"},
+{n:11,e:"classical",c:"Mozart",ck:"모차르트",kt:"레퀴엠 중 '라크리모사'",t:"Requiem – Lacrimosa",k:["라크리모사","lacrimosa","레퀴엠","requiem"],v:"KcnBPqOddSM"},
+{n:12,e:"classical",c:"Mozart",ck:"모차르트",kt:"터키 행진곡",t:"Rondo alla Turca (Piano Sonata No. 11)",k:["터키","turca","알라투르카","피아노소나타11"],v:"n2Tru4Qa3pc"},
+{n:13,e:"classical",c:"Beethoven",ck:"베토벤",kt:"교향곡 5번 '운명' 1악장",t:"Symphony No. 5 in C minor",k:["운명","교향곡5","5번","symphonyno5","symphony5"],v:"SSypujlLlNI"},
+{n:14,e:"classical",c:"Beethoven",ck:"베토벤",kt:"교향곡 9번 '합창' 4악장",t:"Symphony No. 9, 4th mov.",k:["합창","환희","교향곡9","9번","symphonyno9","symphony9","choral"],v:"eAwBg6-xaFE",s:247},
+{n:15,e:"romantic",c:"Schubert",ck:"슈베르트",kt:"마왕",t:"Erlkönig",k:["마왕","erlkonig","erlkoenig"],v:"JS91p-vmSf0"},
+{n:16,e:"romantic",c:"Schubert",ck:"슈베르트",kt:"피아노 3중주 2번 2악장",t:"Piano Trio No. 2",k:["3중주","삼중주","트리오","trio"],v:"nioKJNp8ADE"},
+{n:17,e:"romantic",c:"Saint-Saëns",ck:"생상스",kt:"죽음의 무도",t:"Danse Macabre",k:["죽음의무도","dansemacabre","macabre"],v:"YyknBTm_YyM"},
+{n:18,e:"romantic",c:"Mendelssohn",ck:"멘델스존",kt:"한여름 밤의 꿈 중 결혼 행진곡",t:"Wedding March (A Midsummer Night's Dream)",k:["한여름","결혼행진곡","weddingmarch","midsummer"],v:"0Oo4z37OUEI"},
+{n:19,e:"romantic",c:"Chopin",ck:"쇼팽",kt:"발라드 1번",t:"Ballade No. 1 in G minor",k:["발라드","ballade"],v:"Zj_psrTUW_w"},
+{n:20,e:"romantic",c:"Chopin",ck:"쇼팽",kt:"전주곡 '빗방울'",t:"Prelude Op. 28 No. 15 \"Raindrop\"",k:["빗방울","raindrop","전주곡","prelude"],v:"HVau-JRGirg"},
+{n:21,e:"romantic",c:"Paganini",ck:"파가니니",kt:"카프리스 24번",t:"Caprice No. 24",k:["카프리스","caprice","24번"],v:"PZ307sM0t-0"},
+{n:22,e:"romantic",c:"Schumann",ck:"슈만",kt:"어린이 정경 중 '트로이메라이'",t:"Träumerei (Kinderszenen)",k:["트로이메라이","traumerei","traeumerei","어린이정경","꿈"],v:"6z82w0l6kwE"},
+{n:23,e:"romantic",c:"Liszt",ck:"리스트",kt:"라 캄파넬라",t:"La Campanella",k:["캄파넬라","campanella"],v:"H1Dvg2MxQn8"},
+{n:24,e:"romantic",c:"Liszt",ck:"리스트",kt:"초절기교 연습곡 4번 '마제파'",t:"Transcendental Etude No. 4 \"Mazeppa\"",k:["마제파","mazeppa","초절기교"],v:"Uk6qyGFYJ9M"},
+{n:25,e:"romantic",c:"Liszt",ck:"리스트",kt:"헝가리안 랩소디 2번",t:"Hungarian Rhapsody No. 2",k:["헝가리","hungarian"],v:"LdH1hSWGFGU"},
+{n:26,e:"romantic",c:"Wagner",ck:"바그너",kt:"발퀴레의 기행",t:"Ride of the Valkyries",k:["발퀴레","발키리","valkyrie","walkure","walkuere"],v:"GGU1P6lBW6Q"},
+{n:27,e:"romantic",c:"Wagner",ck:"바그너",kt:"로엔그린 중 결혼 행진곡",t:"Wedding March (Lohengrin)",k:["로엔그린","lohengrin","결혼행진곡","weddingmarch","treulich"],v:"_7Su2qPT_P0"},
+{n:28,e:"romantic",c:"Khachaturian",ck:"하차투리안",kt:"가면무도회 중 왈츠",t:"Masquerade: Waltz",k:["가면무도회","masquerade"],v:"fPp3Qh-GRqs"},
+{n:29,e:"romantic",c:"Bizet",ck:"비제",kt:"카르멘 중 '하바네라'",t:"Habanera (Carmen)",k:["하바네라","habanera","카르멘","carmen"],v:"EseMHr6VEM0"},
+{n:30,e:"romantic",c:"Tchaikovsky",ck:"차이콥스키",kt:"백조의 호수 중 '정경'",t:"Swan Lake: Scene",k:["백조","swanlake","swan"],v:"9cNQFB0TDfY"},
+{n:31,e:"romantic",c:"Puccini",ck:"푸치니",kt:"투란도트 중 '공주는 잠 못 이루고'",t:"Nessun Dorma (Turandot)",k:["네순도르마","nessundorma","잠못","잠들지","투란도트","turandot"],v:"cWc7vYjgnTs"},
+{n:32,e:"modern",c:"Debussy",ck:"드뷔시",kt:"교향시 '바다' 2악장",t:"La mer, 2nd mov.",k:["바다","lamer","파도의유희"],v:"HIgQHcLoADA"},
+{n:33,e:"modern",c:"Glinka",ck:"글린카",kt:"루슬란과 류드밀라 서곡",t:"Ruslan and Ludmila Overture",k:["루슬란","ruslan","류드밀라","ludmila"],v:"QW3IwWFkpfc"},
+{n:34,e:"modern",c:"Mahler",ck:"말러",kt:"교향곡 5번 4악장 '아다지에토'",t:"Symphony No. 5: Adagietto",k:["아다지에토","adagietto","교향곡5","5번"],v:"Bj6KLv7kv2Q"},
+{n:35,e:"modern",c:"Satie",ck:"사티",kt:"짐노페디 1번",t:"Gymnopédie No. 1",k:["짐노페디","gymnopedie"],v:"S-Xm7s9eGxU"},
+{n:36,e:"modern",c:"Orff",ck:"오르프",kt:"카르미나 부라나 중 '오 운명의 여신이여'",t:"Carmina Burana: O Fortuna",k:["카르미나","carmina","포르투나","fortuna","운명의여신"],v:"GXFSK0ogeg4"},
+{n:37,e:"modern",c:"Schoenberg",ck:"쇤베르크",kt:"달에 홀린 피에로",t:"Pierrot Lunaire",k:["피에로","pierrot","달에홀린"],v:"vQVkbKULKpI"},
+{n:38,e:"modern",c:"Piazzolla",ck:"피아졸라",kt:"리베르탱고",t:"Libertango",k:["리베르탱고","libertango","리베르땅고"],v:"kdhTodxH7Gw"},
+{n:39,e:"modern",c:"Shostakovich",ck:"쇼스타코비치",kt:"두 대의 바이올린과 피아노를 위한 5개의 소품",t:"5 Pieces for Two Violins and Piano",k:["5개의소품","다섯개의소품","5pieces","fivepieces","소품"],v:"uXCZuHzgPHE"},
+{n:40,e:"modern",c:"Bolcom",ck:"볼컴",kt:"우아한 유령",t:"Graceful Ghost Rag",k:["우아한유령","유령","gracefulghost","ghost"],v:"zCTLr0j6Gs0"},
+{n:41,e:"modern",c:"Gershwin",ck:"거슈윈",kt:"랩소디 인 블루",t:"Rhapsody in Blue",k:["블루","inblue","rhapsodyinblue"],v:"cH2PH0auTUU"},
+{n:42,e:"modern",c:"Bolling",ck:"볼링",kt:"플루트와 재즈 피아노를 위한 모음곡 1번 중 '센티멘털'",t:"Sentimentale (Suite for Flute and Jazz Piano)",k:["센티멘탈","센티멘털","sentimentale","플루트","flute"],v:"09wXji3e6KE"},
+{n:43,e:"modern",c:"Jenkins",ck:"젠킨스",kt:"팔라디오 1악장",t:"Palladio: Allegretto",k:["팔라디오","palladio"],v:"f6pOLBqthd4"},
+{n:44,e:"modern",c:"Kapustin",ck:"카푸스틴",kt:"8개의 연주회용 연습곡 6번 '파스토랄'",t:'Concert Etude Op. 40 No. 6 "Pastoral"',k:["파스토랄","pastoral","연주회용연습곡","concertetude"],v:"_oDIN-tCqzY"}
+];
+const COMP_ALIAS = {"Mozart":["모짜르트"],"Bach":["바하"],"Debussy":["드비시"],"Chopin":["쇼팡"],"Puccini":["뿌치니"],"Paganini":["빠가니니"],"Saint-Saëns":["생상","saintsaens"],"Tchaikovsky":["차이코프스키","차이코프스키","차이콥스키"],"Khachaturian":["하차투리얀","카차투리안"],"Shostakovich":["쇼스타코비치"],"Schoenberg":["쇤베르그","쇤베르크","schonberg"],"Piazzolla":["피아솔라","피아졸라"],"Couperin":["쿠프랭","쿠페랭"],"Handel":["헨델","handel","haendel"],"Pachelbel":["파헬벨","파헤벨"],"Gershwin":["거쉰","거슈인"],"Bolling":["볼링","볼링"],"Kapustin":["카푸스틴"],"Mendelssohn":["멘델스존","멘델손"]};
+
+const $ = id => document.getElementById(id);
+const eraOf = k => ERAS.find(e => e.k === k);
+// 띄어쓰기·문장부호·악센트를 지우고 소문자로 맞춰 비교한다.
+// NFKD는 한글을 자모로 쪼개므로 악센트만 지운 뒤 NFC로 다시 합친다.
+const norm = s => String(s||"").normalize("NFKD").replace(/[̀-ͯ]/g,"").normalize("NFC").toLowerCase().replace(/[^0-9a-z가-힣]/g,"");
+
+let picked = new Set(ERAS.map(e => e.k));
+let queue = [], idx = 0, results = [], cur = null;
+let player = null, ytReady = false, startAt = 0, played = 0, lastTick = 0, isPlaying = false, clipDone = false, fixedStart = false, graded = false;
+
+function store(key, val){ try{ if(val === undefined) return JSON.parse(localStorage.getItem(key)); localStorage.setItem(key, JSON.stringify(val)); }catch(e){ return null; } }
+
+/* ---------- 설정 화면 ---------- */
+function renderEraPick(){
+  const box = $("eraPick"); box.innerHTML = "";
+  ERAS.forEach(e => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "eraBtn " + e.cls;
+    b.setAttribute("aria-pressed", picked.has(e.k));
+    b.innerHTML = `<span class="nm">${e.n}</span><span class="rg">${e.rg}</span>`;
+    b.onclick = () => { picked.has(e.k) ? picked.delete(e.k) : picked.add(e.k); store("lq-eras", [...picked]); renderEraPick(); };
+    box.appendChild(b);
+  });
+  $("startBtn").disabled = picked.size === 0;
+  const n = SONGS.filter(s => picked.has(s.e) && s.v).length;
+  $("startBtn").textContent = picked.size ? `${n}곡 시작` : "시대를 하나 이상 고르세요";
+}
+const bad = SONGS.filter(s => s.bad);
+if(bad.length){ $("badNote").hidden = false; $("badNote").textContent = "빠진 곡: " + bad.map(s => `${s.n}번 ${s.ck} (${s.bad})`).join(", ") + ". 올바른 링크를 넣으면 다시 포함됩니다."; }
+
+function shuffle(a){ for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function begin(list){
+  const byEra = $("optOrder").checked;
+  const pool = list.filter(s => s.v);
+  queue = byEra ? ERAS.flatMap(e => shuffle(pool.filter(s => s.e === e.k))) : shuffle(pool.slice());
+  idx = 0; results = [];
+  fillDatalists();
+  show("play");
+  loadSong();
+}
+$("startBtn").onclick = () => begin(SONGS.filter(s => picked.has(s.e)));
+
+function fillDatalists(){
+  const on = $("optHint").checked;
+  $("inComp").setAttribute("list", on ? "dlComp" : "");
+  $("inTitle").setAttribute("list", on ? "dlTitle" : "");
+  const comps = [...new Map(SONGS.map(s => [s.c, s])).values()];
+  $("dlComp").innerHTML = comps.map(s => `<option value="${s.c}">`).join("");
+  $("dlTitle").innerHTML = SONGS.map(s => `<option value="${s.t.replace(/"/g,"&quot;")}">`).join("");
+}
+
+function show(id){ ["setup","play","result"].forEach(s => $(s).hidden = s !== id); window.scrollTo(0, 0); }
+
+/* ---------- 플레이어 ---------- */
+window.onYouTubeIframeAPIReady = () => { ytReady = true; if(cur && !player) makePlayer(); };
+(function(){ const t = document.createElement("script"); t.src = "https://www.youtube.com/iframe_api"; document.head.appendChild(t); })();
+
+function makePlayer(){
+  player = new YT.Player("player", {
+    width: 320, height: 180, videoId: cur.v,
+    playerVars: {start: Math.floor(startAt), autoplay: 1, controls: 0, disablekb: 1, modestbranding: 1, rel: 0, playsinline: 1},
+    events: {
+      onReady: e => e.target.playVideo(),
+      onStateChange: onState,
+      onError: e => showErr(e.data)
+    }
+  });
+}
+
+function loadSong(){
+  cur = queue[idx];
+  const era = eraOf(cur.e);
+  document.body.className = era.cls;
+  $("pEra").textContent = era.n;
+  $("pPos").textContent = `${idx + 1} / ${queue.length}`;
+  const sc = results.filter(r => r.c && r.t).length;
+  $("pScore").innerHTML = results.length ? `완벽 <b>${sc}</b> / ${results.length}` : "";
+  $("pTrack").style.width = (idx / queue.length * 100) + "%";
+  startAt = (cur.s || 0) + Math.random() * WINDOW;
+  played = 0; clipDone = false; fixedStart = false; graded = false;
+  $("pErr").hidden = true;
+  $("inComp").value = ""; $("inTitle").value = "";
+  $("inComp").className = ""; $("inTitle").className = "";
+  $("inComp").disabled = $("inTitle").disabled = false;
+  $("ansBtns").hidden = false; $("reveal").hidden = true; $("nextBtns").hidden = true;
+  $("pMeta").textContent = "불러오는 중…";
+  setClock();
+  if(!ytReady) return;
+  if(!player) makePlayer();
+  else player.loadVideoById({videoId: cur.v, startSeconds: startAt});
+}
+
+function onState(e){
+  if(e.data === YT.PlayerState.PLAYING){
+    // 영상이 짧으면 끝나기 1분 전으로 당겨서 항상 1분을 채운다
+    if(!fixedStart){
+      fixedStart = true;
+      const d = player.getDuration();
+      if(d && startAt > d - CLIP){ startAt = Math.max(0, d - CLIP); player.seekTo(startAt, true); }
+    }
+    if(clipDone && !graded){ player.pauseVideo(); return; }
+    isPlaying = true; lastTick = performance.now();
+    $("cover").classList.add("playing");
+    $("pauseBtn").textContent = "일시정지";
+    $("pMeta").textContent = `${fmt(startAt)} 지점부터 재생 중`;
+  }else{
+    if(isPlaying) tick();
+    isPlaying = false;
+    $("cover").classList.remove("playing");
+    if(e.data === YT.PlayerState.PAUSED) $("pauseBtn").textContent = "계속 듣기";
+    if(e.data === YT.PlayerState.ENDED) finishClip();
+  }
+}
+
+function tick(){
+  if(!isPlaying) return;
+  const now = performance.now();
+  played += (now - lastTick) / 1000; lastTick = now;
+  setClock();
+  if(played >= CLIP && !clipDone) finishClip();
+}
+setInterval(tick, 200);
+
+function finishClip(){
+  clipDone = true; isPlaying = false;
+  if(player && player.pauseVideo) player.pauseVideo();
+  $("cover").classList.remove("playing");
+  $("pMeta").textContent = "1분 끝 — 작곡가와 제목을 적어 보세요";
+  $("pauseBtn").textContent = "계속 듣기";
+  played = Math.max(played, CLIP); setClock();
+  if(!graded && document.activeElement !== $("inTitle")) $("inComp").focus();
+}
+
+function setClock(){
+  const left = Math.max(0, Math.ceil(CLIP - played));
+  $("clock").innerHTML = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}<small>남음</small>`;
+}
+const fmt = s => `${Math.floor(s / 60)}분 ${String(Math.floor(s % 60)).padStart(2, "0")}초`;
+
+function showErr(code){
+  const url = `https://www.youtube.com/watch?v=${cur.v}&t=${Math.floor(startAt)}`;
+  $("pErr").hidden = false;
+  $("pErr").innerHTML = `이 영상은 여기서 재생할 수 없습니다 (오류 ${code}). <a href="${url}" target="_blank" rel="noopener">유튜브에서 ${fmt(startAt)}부터 듣기</a> — 정답은 아래에서 맞히면 됩니다.`;
+  $("pMeta").textContent = "재생 실패";
+}
+
+$("pauseBtn").onclick = () => {
+  if(!player) return;
+  if(isPlaying) player.pauseVideo();
+  else{ if(clipDone) clipDone = false, played = Math.min(played, CLIP - 15); player.playVideo(); }
+};
+$("replayBtn").onclick = () => {
+  if(!player) return;
+  played = 0; clipDone = false; setClock();
+  player.seekTo(startAt, true); player.playVideo();
+};
+$("stopBtn").onclick = () => finishClip();
+
+/* ---------- 채점 ---------- */
+function compOk(inp, s){
+  const x = norm(inp); if(x.length < 2) return false;
+  const names = [s.c, s.ck, ...(COMP_ALIAS[s.c] || [])].map(norm);
+  return names.some(nm => x.includes(nm) || (x.length >= 3 && nm.includes(x)));
+}
+function titleOk(inp, s){
+  const x = norm(inp); if(x.length < 2) return false;
+  if(x === norm(s.kt) || x === norm(s.t)) return true;
+  return s.k.map(norm).some(k => x.includes(k));
+}
+
+function grade(gaveUp){
+  if(graded) return;
+  graded = true;
+  const c = !gaveUp && compOk($("inComp").value, cur);
+  const t = !gaveUp && titleOk($("inTitle").value, cur);
+  results.push({s: cur, c, t});
+  $("inComp").className = c ? "ok" : "ng";
+  $("inTitle").className = t ? "ok" : "ng";
+  $("inComp").disabled = $("inTitle").disabled = true;
+  $("ansBtns").hidden = true;
+  const era = eraOf(cur.e);
+  $("reveal").hidden = false;
+  $("reveal").innerHTML =
+    `<div class="verdict"><span class="${c ? "y" : "n"}">작곡가 ${c ? "맞음" : "틀림"}</span><span class="${t ? "y" : "n"}">제목 ${t ? "맞음" : "틀림"}</span></div>
+     <div class="ans"><span class="num">${cur.n}번</span>${cur.ck} — ${cur.kt}</div>
+     <div class="sub">${cur.c} · ${cur.t} · ${era.n}</div>
+     <div class="sub"><a href="https://www.youtube.com/watch?v=${cur.v}&t=${Math.floor(startAt)}" target="_blank" rel="noopener">방금 구간 유튜브에서 열기 (${fmt(startAt)})</a></div>`;
+  $("nextBtns").hidden = false;
+  $("nextBtn").textContent = idx + 1 < queue.length ? "다음 곡" : "결과 보기";
+  $("nextBtn").focus();
+}
+$("ansForm").onsubmit = e => { e.preventDefault(); grade(false); };
+$("giveUp").onclick = () => grade(true);
+$("inComp").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); $("inTitle").focus(); } });
+
+function next(){
+  if(player && player.pauseVideo) player.pauseVideo();
+  idx++;
+  if(idx < queue.length) loadSong(); else finish();
+}
+$("nextBtn").onclick = next;
+$("quitBtn").onclick = finish;
+
+/* ---------- 결과 ---------- */
+function finish(){
+  if(player && player.pauseVideo) player.pauseVideo();
+  document.body.className = "";
+  const full = results.filter(r => r.c && r.t).length;
+  $("rHead").textContent = `${results.length}곡 중 ${full}곡 완벽`;
+  $("rGrid").innerHTML = ERAS.map(e => {
+    const rs = results.filter(r => r.s.e === e.k);
+    if(!rs.length) return "";
+    const ok = rs.filter(r => r.c && r.t).length;
+    return `<div class="sumCell ${e.cls}"><div class="nm">${e.n}</div><div class="v">${ok}<small> / ${rs.length}</small></div></div>`;
+  }).join("");
+  const miss = results.filter(r => !(r.c && r.t));
+  $("rMissWrap").innerHTML = miss.length
+    ? `<h2 style="font-size:17px;margin-bottom:8px">다시 볼 곡</h2><ul class="missList">` + miss.map(r =>
+        `<li class="${eraOf(r.s.e).cls}">${r.s.n}번 ${r.s.ck} — ${r.s.kt}<span class="what">${!r.c && !r.t ? "둘 다" : !r.c ? "작곡가" : "제목"}</span></li>`).join("") + `</ul>`
+    : `<p class="lede">모두 맞혔습니다.</p>`;
+  $("retryMiss").hidden = !miss.length;
+  $("retryMiss").onclick = () => begin(miss.map(r => r.s));
+  show("result");
+}
+$("backSetup").onclick = () => { renderEraPick(); show("setup"); };
+
+/* ---------- 시작 ---------- */
+const savedEras = store("lq-eras");
+if(Array.isArray(savedEras) && savedEras.length) picked = new Set(savedEras);
+renderEraPick();
+</script>
+</body>
+</html>
