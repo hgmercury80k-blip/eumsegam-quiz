@@ -45,7 +45,7 @@ button{cursor:pointer}
 h1{font-size:28px;line-height:1.25;margin-top:4px}
 .lede{color:var(--ink-2);font-size:14px;margin:8px 0 22px}
 
-.era-b{--era:var(--e-baroque)} .era-c{--era:var(--e-classical)} .era-r{--era:var(--e-romantic)} .era-m{--era:var(--e-modern)}
+.era-x{--era:var(--brass)} .era-b{--era:var(--e-baroque)} .era-c{--era:var(--e-classical)} .era-r{--era:var(--e-romantic)} .era-m{--era:var(--e-modern)}
 
 /* setup */
 .eras{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -240,7 +240,7 @@ const eraOf = k => ERAS.find(e => e.k === k);
 const norm = s => String(s||"").normalize("NFKD").replace(/[̀-ͯ]/g,"").normalize("NFC").toLowerCase().replace(/[^0-9a-z가-힣]/g,"");
 
 let picked = new Set(ERAS.map(e => e.k));
-let queue = [], idx = 0, results = [], cur = null;
+let queue = [], idx = 0, results = [], cur = null, hideEra = false;
 let vidIdx = 0;
 const curVid = () => [cur.v, ...(cur.alt || [])][vidIdx];
 let player = null, ytReady = false, startAt = 0, played = 0, lastTick = 0, isPlaying = false, clipDone = false, fixedStart = false, graded = false;
@@ -269,6 +269,7 @@ function shuffle(a){ for(let i = a.length - 1; i > 0; i--){ const j = Math.floor
 
 function begin(list){
   const byEra = $("optOrder").checked;
+  hideEra = !byEra; // 섞어서 풀 때는 답하기 전까지 시대(이름·색)를 숨긴다
   const pool = list.filter(s => s.v);
   queue = byEra ? ERAS.flatMap(e => shuffle(pool.filter(s => s.e === e.k))) : shuffle(pool.slice());
   idx = 0; results = [];
@@ -308,8 +309,8 @@ function makePlayer(){
 function loadSong(){
   cur = queue[idx];
   const era = eraOf(cur.e);
-  document.body.className = era.cls;
-  $("pEra").textContent = era.n;
+  document.body.className = hideEra ? "era-x" : era.cls;
+  $("pEra").textContent = hideEra ? "무작위" : era.n;
   $("pPos").textContent = `${idx + 1} / ${queue.length}`;
   const sc = results.filter(r => r.c && r.t).length;
   $("pScore").innerHTML = results.length ? `완벽 <b>${sc}</b> / ${results.length}` : "";
@@ -422,6 +423,7 @@ function grade(gaveUp){
   $("inComp").disabled = $("inTitle").disabled = true;
   $("ansBtns").hidden = true;
   const era = eraOf(cur.e);
+  if(hideEra){ document.body.className = era.cls; $("pEra").textContent = era.n; }
   $("reveal").hidden = false;
   $("reveal").innerHTML =
     `<div class="verdict"><span class="${c ? "y" : "n"}">작곡가 ${c ? "맞음" : "틀림"}</span><span class="${t ? "y" : "n"}">제목 ${t ? "맞음" : "틀림"}</span></div>
